@@ -1,16 +1,15 @@
+import type { useKioscoType } from "../context/KioscoProvider";
+import type { ProductoType } from "../data/productos";
 import { formato } from "../helpers";
+import { useKiosco } from "../hooks/useKiosco";
  
 type ProductoProps = {
-  producto: {
-    nombre: string;
-    precio: number;
-    imagen: string;
-    categoria_id: number;
-    id: number;
-  }
+  producto: ProductoType
 };
 
 export default function Producto({ producto } : ProductoProps) {
+
+  const { handleClickModal , handleSetProducto } = useKiosco() as useKioscoType
   const { nombre , precio , imagen } = producto;
 
   return (
@@ -32,7 +31,12 @@ export default function Producto({ producto } : ProductoProps) {
 
         <button
             type="button"
-            className="bg-indigo-600 hover:bg-indigo-800 text-white w-full mt-5 p-3 uppercase font-bold"
+            className="bg-indigo-600 hover:bg-indigo-800 text-white w-full mt-5 p-3 uppercase font-bold cursor-pointer"
+            onClick={ () => {
+              handleClickModal();
+              handleSetProducto( producto );
+            } 
+          }
         >Agregar</button>
 
     </div>
