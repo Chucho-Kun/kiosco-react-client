@@ -1,9 +1,10 @@
 import type { useKioscoType } from "../context/KioscoProvider"
 import { useKiosco } from "../hooks/useKiosco"
+import ResumenProducto from "./ResumenProducto"
 
 export default function Resumen() {
 
-  const { pedido } = useKiosco() as useKioscoType
+  const { pedidos } = useKiosco() as useKioscoType
 
   return (
     <aside className="w-72 h-screen overflow-y-scroll p-5">
@@ -15,10 +16,12 @@ export default function Resumen() {
       </p>
 
       <div>
-        { pedido.length === 0 ? (
+        { pedidos.length === 0 ? (
           <p className="text-center text-lg">No hay elementos en el pedido</p>
         ) : (
-          <p>si hay pedidos</p>
+          pedidos.map( pedido => (
+            <ResumenProducto key={ pedido.id } pedido={ pedido } />
+          ))
         ) }
       </div>
 

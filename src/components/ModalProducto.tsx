@@ -5,7 +5,7 @@ import { useKiosco } from "../hooks/useKiosco";
 
 export default function ModalProducto() {
 
-    const { producto , handleClickModal } = useKiosco() as useKioscoType
+    const { producto , handleClickModal , handleAgregarPedido } = useKiosco() as useKioscoType
     const [ cantidad , setCantidad ] = useState( 1 );
 
     const MAX_CANTIDAD = 8;
@@ -69,6 +69,10 @@ export default function ModalProducto() {
             <button
                 type="button"
                 className="bg-indigo-600 hover:bg-indigo-800 px-5 py-2 mt-5 text-white font-bold uppercase rounded cursor-pointer"
+                onClick={() => {
+                    handleAgregarPedido( { ...producto, cantidad } ); 
+                    handleClickModal();
+                }} 
             >
                 Agregar al pedido
             </button>

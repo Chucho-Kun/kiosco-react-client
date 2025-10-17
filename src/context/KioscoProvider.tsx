@@ -2,6 +2,14 @@ import { createContext, useState } from "react"
 import { categorias as categoriasDB, type CategoriasType } from "../data/categorias";
 import type { ProductoType } from "../data/productos";
 
+export type ProductoCantidadType = ProductoType & {
+  cantidad: number
+}
+
+export type PedidoType = Omit<ProductoType , 'categoria_id' | 'imagen' > & {
+  cantidad: number
+}
+
 export type useKioscoType = {
   categorias: CategoriasType[]
   categoriaActual: CategoriasType
@@ -10,18 +18,21 @@ export type useKioscoType = {
   handleClickModal: () => void
   producto: ProductoType
   handleSetProducto: ( producto: ProductoType ) => void
-  pedido: ProductoType[]
+  pedidos: PedidoType[]
+  handleAgregarPedido: ( producto : ProductoCantidadType ) => void
 };
 
-export const KioscoContext = createContext();
+export const KioscoContext = createContext( {} as useKioscoType );
 
-export const KioscoProvider = ({ children }) => {
+import type { ReactNode } from "react";
+
+export const KioscoProvider = ({ children }: { children: ReactNode }) => {
 
     const [ categorias , setCategorias ] = useState( categoriasDB );
     const [ categoriaActual , setCategoriaActual ] = useState( categorias[0] )
     const [ modal , setModal ] = useState( false )
-    const [ producto, setProducto ] = useState({})
-    const [ pedido , setPedido] = useState([])
+    const [ producto, setProducto ] = useState({} as ProductoType)
+    const [ pedidos , setPedido] = useState([] as PedidoType[] )
     
     const handleClickCategoria = (id : number ) => {
       const categoria = categorias.filter( categoria => categoria.id === id )[0]
@@ -34,7 +45,11 @@ export const KioscoProvider = ({ children }) => {
 
     const handleSetProducto = (producto : ProductoType) => {
       setProducto( producto )
-    } 
+    }
+
+    const handleAgregarPedido = ( { categoria_id , imagen, ...producto } : ProductoCantidadType ) => {
+      setPedido([ ...pedidos , producto ]);
+    }
 
       return(
         <KioscoContext.Provider
@@ -46,7 +61,8 @@ export const KioscoProvider = ({ children }) => {
                 handleClickModal,
                 producto,
                 handleSetProducto,
-                pedido
+                pedidos,
+                handleAgregarPedido
             }}
         >
             { children }
