@@ -1,3 +1,9 @@
+export type CategoriasType = {
+    icono: string
+    nombre: string
+    id: number
+}
+
 export const categorias = [
     {
         icono: "cafe",
