@@ -1,12 +1,21 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { useKioscoType } from "../context/KioscoProvider";
 import { formato } from "../helpers";
 import { useKiosco } from "../hooks/useKiosco";
 
 export default function ModalProducto() {
 
-    const { producto , handleClickModal , handleAgregarPedido } = useKiosco() as useKioscoType
+    const { producto , handleClickModal , handleAgregarPedido , pedidos } = useKiosco() as useKioscoType
     const [ cantidad , setCantidad ] = useState( 1 );
+    const [ edicion , setEdicion ] = useState( false );
+
+    useEffect( () => {
+        if( pedidos.some( pedidoState => pedidoState.id === producto.id ) ){
+            const productoEdicion = pedidos.filter( pedidoState => pedidoState.id === producto.id )[0]
+            setCantidad( productoEdicion.cantidad )
+            setEdicion( true )
+        }
+    }, [ pedidos ]);
 
     const MAX_CANTIDAD = 8;
     const MIN_CANTIDAD = 1;
@@ -74,7 +83,7 @@ export default function ModalProducto() {
                     handleClickModal();
                 }} 
             >
-                Agregar al pedido
+                { edicion ? 'Guardar Cambios' : 'Añadir al Pedido' }
             </button>
 
         </div>

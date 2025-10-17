@@ -25,10 +25,11 @@ export type useKioscoType = {
 export const KioscoContext = createContext( {} as useKioscoType );
 
 import type { ReactNode } from "react";
+import { toast } from "react-toastify";
 
 export const KioscoProvider = ({ children }: { children: ReactNode }) => {
 
-    const [ categorias , setCategorias ] = useState( categoriasDB );
+    const [ categorias ] = useState( categoriasDB );
     const [ categoriaActual , setCategoriaActual ] = useState( categorias[0] )
     const [ modal , setModal ] = useState( false )
     const [ producto, setProducto ] = useState({} as ProductoType)
@@ -48,7 +49,15 @@ export const KioscoProvider = ({ children }: { children: ReactNode }) => {
     }
 
     const handleAgregarPedido = ( { categoria_id , imagen, ...producto } : ProductoCantidadType ) => {
-      setPedido([ ...pedidos , producto ]);
+
+      if( pedidos.some( pedidoState => pedidoState.id === producto.id ) ){
+        const pedidoActualizado = pedidos.map( pedidoState => pedidoState.id === producto.id ? producto : pedidoState );
+        setPedido( pedidoActualizado );
+        toast.success('Guardado Correctamente');
+      }else{
+        setPedido([ ...pedidos , producto ]);
+        toast.success('Pedido Agregado');
+      }
     }
 
       return(
