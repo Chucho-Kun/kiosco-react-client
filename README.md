@@ -1,73 +1,86 @@
 # React + TypeScript + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## React Compiler
-
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## useKiosco()
+### src/context/KioscoProvider.tsx
 ```
+import { createContext, useState } from "react"
+import { categorias as categoriasDB, type CategoriasType } from "../data/categorias";
+import type { ProductoType } from "../data/productos";
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+export type ProductoCantidadType = ProductoType & {
+  cantidad: number
+}
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+export type PedidoType = Omit<ProductoType , 'categoria_id' | 'imagen' > & {
+  cantidad: number
+}
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+export type useKioscoType = {
+  categorias: CategoriasType[]
+  categoriaActual: CategoriasType
+  handleClickCategoria: ( id: number) => void
+  modal: boolean
+  handleClickModal: () => void
+  producto: ProductoType
+  handleSetProducto: ( producto: ProductoType ) => void
+  pedidos: PedidoType[]
+  handleAgregarPedido: ( producto : ProductoCantidadType ) => void
+};
+
+export const KioscoContext = createContext( {} as useKioscoType );
+
+import type { ReactNode } from "react";
+import { toast } from "react-toastify";
+
+export const KioscoProvider = ({ children }: { children: ReactNode }) => {
+
+    const [ categorias ] = useState( categoriasDB );
+    const [ categoriaActual , setCategoriaActual ] = useState( categorias[0] )
+    const [ modal , setModal ] = useState( false )
+    const [ producto, setProducto ] = useState({} as ProductoType)
+    const [ pedidos , setPedido] = useState([] as PedidoType[] )
+    
+    const handleClickCategoria = (id : number ) => {
+      const categoria = categorias.filter( categoria => categoria.id === id )[0]
+      setCategoriaActual( categoria )
+    }
+
+    const handleClickModal = () => {
+      setModal( !modal );
+    }
+
+    const handleSetProducto = (producto : ProductoType) => {
+      setProducto( producto )
+    }
+
+    const handleAgregarPedido = ( { categoria_id , imagen, ...producto } : ProductoCantidadType ) => {
+
+      if( pedidos.some( pedidoState => pedidoState.id === producto.id ) ){
+        const pedidoActualizado = pedidos.map( pedidoState => pedidoState.id === producto.id ? producto : pedidoState );
+        setPedido( pedidoActualizado );
+        toast.success('Guardado Correctamente');
+      }else{
+        setPedido([ ...pedidos , producto ]);
+        toast.success('Pedido Agregado');
+      }
+    }
+
+      return(
+        <KioscoContext.Provider
+            value={{
+                categorias,
+                categoriaActual,
+                handleClickCategoria,
+                modal,
+                handleClickModal,
+                producto,
+                handleSetProducto,
+                pedidos,
+                handleAgregarPedido
+            }}
+        >
+            { children }
+        </KioscoContext.Provider>
+      )
+}
 ```
