@@ -31,8 +31,8 @@ export default function ModalProducto() {
     <div className="md:flex gap-10">
         <div className="md:w-1/3">
             <img 
-                src={`/img/${producto.imagen}.jpg`}
-                alt={`Imagen prodcuto ${ producto.nombre }`}
+                src={ 'imagen' in producto ? `/img/${(producto as any).imagen}.jpg` : '/img/default.jpg' }
+                alt={`Imagen producto ${ 'nombre' in producto ? producto.nombre : '' }`}
             />
         </div>
         <div className="md:w-2/3">
@@ -79,7 +79,14 @@ export default function ModalProducto() {
                 type="button"
                 className="bg-indigo-600 hover:bg-indigo-800 px-5 py-2 mt-5 text-white font-bold uppercase rounded cursor-pointer"
                 onClick={() => {
-                    handleAgregarPedido( { ...producto, cantidad } ); 
+                    handleAgregarPedido({ 
+                        id: producto.id, 
+                        nombre: producto.nombre, 
+                        precio: producto.precio, 
+                        imagen: (producto as any).imagen, 
+                        categoria_id: (producto as any).categoria_id, 
+                        cantidad 
+                    }); 
                     handleClickModal();
                 }} 
             >
