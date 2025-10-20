@@ -21,7 +21,7 @@ export default function Producto({ producto } : ProductoProps) {
         />
 
         <div className="p-5">
-            <h3 className="text-2xl font-bold text-orange-800">
+            <h3 className="text-xl font-bold text-orange-800">
                 { nombre }
             </h3>
             <p className="mt-5 font-black text-4xl text-orange-500">

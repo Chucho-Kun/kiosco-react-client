@@ -1,4 +1,4 @@
-import { createContext, useState } from "react"
+import { createContext, useEffect, useState } from "react"
 import { categorias as categoriasDB, type CategoriasType } from "../data/categorias";
 import type { ProductoType } from "../data/productos";
 
@@ -22,6 +22,7 @@ export type useKioscoType = {
   handleAgregarPedido: ( producto: ProductoCantidadType ) => void
   handleEditarCantidad: ( id: number ) => void
   handleEliminarProductoPedido: ( id: number ) => void
+  total: number
 };
 
 export const KioscoContext = createContext( {} as useKioscoType );
@@ -36,6 +37,12 @@ export const KioscoProvider = ({ children }: { children: ReactNode }) => {
     const [ modal , setModal ] = useState( false )
     const [ producto, setProducto ] = useState<ProductoType | PedidoType>({} as ProductoType)
     const [ pedidos , setPedido] = useState([] as PedidoType[] )
+    const [ total , setTotal ] = useState(0)
+
+    useEffect(() => {
+      const nuevoTotal = pedidos.reduce( ( total , producto ) => (producto.precio * producto.cantidad) + total, 0 )
+      setTotal( nuevoTotal )
+    },[pedidos])
     
     const handleClickCategoria = (id : number ) => {
       const categoria = categorias.filter( categoria => categoria.id === id )[0]
@@ -87,7 +94,8 @@ export const KioscoProvider = ({ children }: { children: ReactNode }) => {
                 pedidos,
                 handleAgregarPedido,
                 handleEditarCantidad,
-                handleEliminarProductoPedido
+                handleEliminarProductoPedido,
+                total
             }}
         >
             { children }
