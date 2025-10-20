@@ -1,5 +1,6 @@
-import type { PedidoType } from "../context/KioscoProvider";
+import type { PedidoType, useKioscoType } from "../context/KioscoProvider";
 import { formato } from "../helpers";
+import { useKiosco } from "../hooks/useKiosco";
 
 type ResumenProps = {
     pedido : PedidoType
@@ -7,7 +8,8 @@ type ResumenProps = {
 
 export default function ResumenProducto( { pedido } : ResumenProps ) {
   
-    const { nombre , precio , cantidad } = pedido
+    const { id , nombre , precio , cantidad } = pedido
+    const { handleEditarCantidad , handleEliminarProductoPedido } = useKiosco() as useKioscoType
 
     return (
     <div className="shadow space-y-1 p-4 bg-white">
@@ -25,7 +27,8 @@ export default function ResumenProducto( { pedido } : ResumenProps ) {
       <div className="flex justify-between gap-2 pb-4">
         <button
           type="button"
-          className="bg-sky-700 p-2 text-white rounded-md font-bold uppercase shadow-md text-center"
+          className="bg-sky-500 hover:bg-sky-700 p-2 text-white rounded-md font-bold uppercase shadow-md text-center cursor-pointer"
+          onClick={ () => handleEditarCantidad(id) }
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -38,7 +41,8 @@ export default function ResumenProducto( { pedido } : ResumenProps ) {
         </button>
         <button
           type="button"
-          className="bg-red-700 p-2 text-white rounded-md font-bold uppercase shadow-md text-center"
+          className="bg-red-500 hover:bg-red-700 p-2 text-white rounded-md font-bold uppercase shadow-md text-center cursor-pointer"
+          onClick={ () => handleEliminarProductoPedido(id) }
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"

@@ -16,10 +16,12 @@ export type useKioscoType = {
   handleClickCategoria: ( id: number) => void
   modal: boolean
   handleClickModal: () => void
-  producto: ProductoType
-  handleSetProducto: ( producto: ProductoType ) => void
+  producto: ProductoType | PedidoType
+  handleSetProducto: ( producto: ProductoType | PedidoType ) => void
   pedidos: PedidoType[]
-  handleAgregarPedido: ( producto : ProductoCantidadType ) => void
+  handleAgregarPedido: ( producto: ProductoCantidadType ) => void
+  handleEditarCantidad: ( id: number ) => void
+  handleEliminarProductoPedido: ( id: number ) => void
 };
 
 export const KioscoContext = createContext( {} as useKioscoType );
@@ -32,7 +34,7 @@ export const KioscoProvider = ({ children }: { children: ReactNode }) => {
     const [ categorias ] = useState( categoriasDB );
     const [ categoriaActual , setCategoriaActual ] = useState( categorias[0] )
     const [ modal , setModal ] = useState( false )
-    const [ producto, setProducto ] = useState({} as ProductoType)
+    const [ producto, setProducto ] = useState<ProductoType | PedidoType>({} as ProductoType)
     const [ pedidos , setPedido] = useState([] as PedidoType[] )
     
     const handleClickCategoria = (id : number ) => {
@@ -44,11 +46,11 @@ export const KioscoProvider = ({ children }: { children: ReactNode }) => {
       setModal( !modal );
     }
 
-    const handleSetProducto = (producto : ProductoType) => {
+    const handleSetProducto = (producto : ProductoType | PedidoType) => {
       setProducto( producto )
     }
 
-    const handleAgregarPedido = ( { categoria_id , imagen, ...producto } : ProductoCantidadType ) => {
+    const handleAgregarPedido = ( { categoria_id , ...producto } : ProductoCantidadType ) => {
 
       if( pedidos.some( pedidoState => pedidoState.id === producto.id ) ){
         const pedidoActualizado = pedidos.map( pedidoState => pedidoState.id === producto.id ? producto : pedidoState );
@@ -58,6 +60,18 @@ export const KioscoProvider = ({ children }: { children: ReactNode }) => {
         setPedido([ ...pedidos , producto ]);
         toast.success('Pedido Agregado');
       }
+    }
+
+    const handleEditarCantidad = (id: number) => {
+      const productoActualizar = pedidos.filter( producto => producto.id === id )[0]
+      setProducto( productoActualizar )
+      setModal(!modal)
+    }
+
+    const handleEliminarProductoPedido = ( id : number) => {
+      const pedidoActualizado = pedidos.filter( producto => producto.id !== id )
+      setPedido( pedidoActualizado )
+      toast.success( 'Pedido Eliminado' )
     }
 
       return(
@@ -71,7 +85,9 @@ export const KioscoProvider = ({ children }: { children: ReactNode }) => {
                 producto,
                 handleSetProducto,
                 pedidos,
-                handleAgregarPedido
+                handleAgregarPedido,
+                handleEditarCantidad,
+                handleEliminarProductoPedido
             }}
         >
             { children }
