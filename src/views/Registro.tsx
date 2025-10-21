@@ -1,13 +1,58 @@
+import { createRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { clienteAxios } from "../config/axios";
+import Errores from "../components/Errores";
 
 export default function Registro() {
+
+    type FormDataType = {
+      name: string;
+      email: string;
+      password: string;
+      password_confirmation: string;
+    };
+
+  const nameRef = createRef<HTMLInputElement>();
+  const emailRef = createRef<HTMLInputElement>();
+  const passwordRef = createRef<HTMLInputElement>();
+  const passwordConfirmationRef = createRef<HTMLInputElement>();
+  
+  const [ errores , setErrores ] = useState<string[]>([])
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const data: FormDataType = {
+      name: (nameRef.current as HTMLInputElement).value,
+      email: (emailRef.current as HTMLInputElement).value,
+      password: (passwordRef.current as HTMLInputElement).value,
+      password_confirmation: (passwordConfirmationRef.current as HTMLInputElement).value
+    }
+
+    try {
+      await clienteAxios.post('/api/registro', data);
+    } catch (error: unknown) {
+      if(typeof error === 'object' && error !== null && 'response' in error && typeof (error as any).response?.data?.errors === 'object'){
+        setErrores( (error as any).response.data.errors )
+      }
+    
+    }
+
+  }
+
   return (
     <>
       <h1 className="text-4xl font-black">Creat tu Cuenta</h1>
       <p>Llena el formulario</p>
 
       <div className="bg-white shadow-md rounded-md mt-10 px-5 py-10">
-        <form>
+        <form
+          onSubmit={handleSubmit}
+          noValidate
+        >
+
+        { Object.entries(errores).map(([ campo , mensajes ]) => <Errores key={campo}>{ mensajes }</Errores> ) }
+
           <div className="mb-4">
             <label className="text-slate-800" htmlFor="name">Nombre</label>
             <input
@@ -16,6 +61,7 @@ export default function Registro() {
                 type="text" 
                 name="name"
                 placeholder="Tu Nombre"
+                ref={nameRef}
             />
           </div>
           <div className="mb-4">
@@ -26,6 +72,7 @@ export default function Registro() {
                 type="text" 
                 name="name"
                 placeholder="Tu email"
+                ref={emailRef}
             />
           </div>
           <div className="mb-4">
@@ -36,6 +83,7 @@ export default function Registro() {
                 type="password" 
                 name="password"
                 placeholder="Tu Password"
+                ref={passwordRef}
             />
           </div>
           <div className="mb-4">
@@ -46,6 +94,7 @@ export default function Registro() {
                 type="password" 
                 name="password_confirmation"
                 placeholder="Repetir Password"
+                ref={passwordConfirmationRef}
             />
           </div>
 

@@ -4,6 +4,7 @@ import { useKiosco } from "../hooks/useKiosco";
 import { clienteAxios } from "../config/axios";
 import Loader from "../layouts/Loader";
 import Producto from "../components/Producto";
+import type { ProductoType } from "../data/productos";
 
 export default function inicio() {
 
@@ -17,7 +18,7 @@ export default function inicio() {
 
   if(isLoading) return <Loader />
 
-  const productos = data.data.filter( producto => producto.categoria_id === categoriaActual.id )
+  const productos = data.data.filter( (producto: ProductoType) => producto.categoria_id === categoriaActual.id )
 
   return (
     <>
@@ -25,7 +26,7 @@ export default function inicio() {
       <p className="text-2xl my-5">Elige tu pedido</p>
 
       <div className="ml-4 grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-        { productos.map( producto => (
+        { productos.map( (producto: ProductoType) => (
           <Producto 
             producto={ producto }  
             key={producto.imagen} 
