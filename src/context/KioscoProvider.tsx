@@ -1,6 +1,9 @@
 import { createContext, useEffect, useState } from "react"
-import { categorias as categoriasDB, type CategoriasType } from "../data/categorias";
+import { type CategoriasType } from "../data/categorias";
 import type { ProductoType } from "../data/productos";
+import type { ReactNode } from "react";
+import { toast } from "react-toastify";
+import { clienteAxios } from "../config/axios";
 
 export type ProductoCantidadType = ProductoType & {
   cantidad: number
@@ -27,13 +30,10 @@ export type useKioscoType = {
 
 export const KioscoContext = createContext( {} as useKioscoType );
 
-import type { ReactNode } from "react";
-import { toast } from "react-toastify";
-
 export const KioscoProvider = ({ children }: { children: ReactNode }) => {
 
-    const [ categorias ] = useState( categoriasDB );
-    const [ categoriaActual , setCategoriaActual ] = useState( categorias[0] )
+    const [ categorias , setCategorias ] = useState( [] as CategoriasType[] );
+    const [ categoriaActual , setCategoriaActual ] = useState( {} as CategoriasType )
     const [ modal , setModal ] = useState( false )
     const [ producto, setProducto ] = useState<ProductoType | PedidoType>({} as ProductoType)
     const [ pedidos , setPedido] = useState([] as PedidoType[] )
@@ -43,6 +43,23 @@ export const KioscoProvider = ({ children }: { children: ReactNode }) => {
       const nuevoTotal = pedidos.reduce( ( total , producto ) => (producto.precio * producto.cantidad) + total, 0 )
       setTotal( nuevoTotal )
     },[pedidos])
+
+    const obtenerCategorias = async () => {
+      try {
+
+        const respuesta = await clienteAxios('/api/categorias'); //await axios(`${import.meta.env.VITE_API_URL}/api/categorias`);
+        const { data } = respuesta;
+        setCategorias( data.data );
+        setCategoriaActual( data.data[0] );
+      } catch (error) {
+        console.log(error);
+        
+      }
+    }
+
+    useEffect( () => {
+      obtenerCategorias();
+    },[])
     
     const handleClickCategoria = (id : number ) => {
       const categoria = categorias.filter( categoria => categoria.id === id )[0]
