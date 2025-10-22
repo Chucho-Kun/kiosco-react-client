@@ -1,20 +1,23 @@
 import { createRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { clienteAxios } from "../config/axios";
 import Errores from "../components/Errores";
+import { useAuth } from "../hooks/useAuth";
 
+export type LoginType = {
+    email: string;
+    password: string;
+  };
 
 export default function Login() {
-
-      type LoginType = {
-      email: string;
-      password: string;
-    };
 
   const emailRef = createRef<HTMLInputElement>();
   const passwordRef = createRef<HTMLInputElement>();
   
   const [ errores , setErrores ] = useState<string[]>([])
+  const { login } = useAuth( {
+    middleware: 'guest',
+    url: '/'
+  })
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -24,16 +27,7 @@ export default function Login() {
       password: (passwordRef.current as HTMLInputElement).value
     }   
 
-    try {
-      const { data } = await clienteAxios.post('/api/login' , datos);
-      localStorage.setItem('AUTH_TOKEN', data.token);
-      setErrores([]);
-    } catch (error: unknown) {
-      if(typeof error === 'object' && error !== null && 'response' in error && typeof (error as any).response?.data?.errors === 'object'){
-        setErrores( (error as any).response.data.errors )
-      }
-    
-    }
+    login( datos, setErrores )
 
   }
 

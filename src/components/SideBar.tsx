@@ -1,4 +1,5 @@
 import type { useKioscoType } from "../context/KioscoProvider";
+import { useAuth } from "../hooks/useAuth";
 import { useKiosco } from "../hooks/useKiosco";
 import Categoria from "./Categoria";
 
@@ -7,6 +8,7 @@ import Categoria from "./Categoria";
 export default function SideBar() {
 
   const { categorias } = useKiosco() as useKioscoType
+  const { logout } = useAuth({middleware: 'auth', url: '/api/login'})
 
   return (
     <aside className="md:w-72">
@@ -23,7 +25,8 @@ export default function SideBar() {
       <div className="my-5 px-5">
         <button
           type="button"
-          className="text-center bg-red-500 w-full p-3 font-bold text-white truncate"
+          className="text-center bg-red-500 hover:bg-red-700 w-full p-3 font-bold text-white truncate cursor-pointer"
+          onClick={logout}
         >
           Cancelar Orden
         </button>
