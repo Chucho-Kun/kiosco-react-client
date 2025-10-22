@@ -24,16 +24,13 @@ Modal.setAppElement('#root');
 
 export default function Layout() {
 
-  const { user, error } = useAuth({ middleware: 'auth', url: '/auth/login' })
+  const { user } = useAuth({ middleware: 'auth', url: '/auth/login' })
   const { modal } = useKiosco() as useKioscoType;
-
-  console.log(user);
-  console.log(error);
   
   return (
     <>
       <div className="md:flex">
-        <SideBar />
+        <SideBar key={user} />
         <main className="flex-1 h-screen overflow-y-scroll bg-white p-3">
           <Outlet />
         </main>

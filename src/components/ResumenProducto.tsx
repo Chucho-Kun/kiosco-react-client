@@ -13,13 +13,14 @@ export default function ResumenProducto( { pedido } : ResumenProps ) {
 
     return (
     <div className="shadow space-y-1 p-4 bg-white">
-      <div className="space-y-2">
-        <p className="text-xl font-bold">{nombre}</p>
-        <p className="text-lg font-bold ">Cantidad: {cantidad}</p>
-        <p className="text-lg font-bold text-amber-500">
+      <div className="space-y-1">
+        <p className="text-lg font-bold">{nombre}</p>
+
+        <p className="text-sm text-amber-800">Cantidad: {cantidad}</p>
+        <p className="text-sm text-amber-800">
           Precio: { formato( precio ) }
         </p>
-        <p className="text-lg text-gray-700">
+        <p className="text-sm text-amber-800">
           Subtotal: { formato( precio * cantidad ) }
         </p>
       </div>
@@ -27,21 +28,18 @@ export default function ResumenProducto( { pedido } : ResumenProps ) {
       <div className="flex justify-between gap-2 pb-4">
         <button
           type="button"
-          className="bg-sky-500 hover:bg-sky-700 p-2 text-white rounded-md font-bold uppercase shadow-md text-center cursor-pointer"
+          className="bg-sky-300 hover:bg-sky-700 p-2 text-white rounded-full font-bold uppercase text-center cursor-pointer"
           onClick={ () => handleEditarCantidad(id) }
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-          >
-            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="size-5">
+            <path d="m2.695 14.762-1.262 3.155a.5.5 0 0 0 .65.65l3.155-1.262a4 4 0 0 0 1.343-.886L17.5 5.501a2.121 2.121 0 0 0-3-3L3.58 13.419a4 4 0 0 0-.885 1.343Z" />
           </svg>
+
+
         </button>
         <button
           type="button"
-          className="bg-red-500 hover:bg-red-700 p-2 text-white rounded-md font-bold uppercase shadow-md text-center cursor-pointer"
+          className="bg-red-300 hover:bg-red-700 p-2 text-white rounded-full font-bold uppercase text-center cursor-pointer"
           onClick={ () => handleEliminarProductoPedido(id) }
         >
           <svg

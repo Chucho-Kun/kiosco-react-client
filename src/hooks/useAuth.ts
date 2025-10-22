@@ -10,6 +10,9 @@ type useAuthType = {
     url: string
 }
 
+type setErroresType = React.Dispatch<React.SetStateAction<string[]>>
+
+
 export const useAuth = ({ middleware, url }: useAuthType) => {
 
     const token = localStorage.getItem('AUTH_TOKEN')
@@ -27,10 +30,7 @@ export const useAuth = ({ middleware, url }: useAuthType) => {
         })
     )
 
-    const login = async (
-        datos : LoginType , 
-        setErrores: React.Dispatch<React.SetStateAction<string[]>> 
-    ) => {
+    const login = async ( datos : LoginType ,  setErrores: setErroresType ) => {
         
         try {
           const { data } = await clienteAxios.post("/api/login", datos);
@@ -50,8 +50,19 @@ export const useAuth = ({ middleware, url }: useAuthType) => {
 
     }
 
-    const registro = () => {
+    const registro = async ( datos : LoginType ,  setErrores: setErroresType )  => {
 
+        try {
+            const { data } = await clienteAxios.post('/api/registro' , datos);
+            localStorage.setItem("AUTH_TOKEN", data.token);
+            setErrores([]);
+            await mutate();
+            } catch (error: unknown) {
+            if(typeof error === 'object' && error !== null && 'response' in error && typeof (error as any).response?.data?.errors === 'object'){
+                setErrores( (error as any).response.data.errors )
+            }
+            
+            }
     }
 
     const logout = async () => {
@@ -67,9 +78,6 @@ export const useAuth = ({ middleware, url }: useAuthType) => {
            throw Error( error?.response?.data?.errors)
         }
     }
-
-    console.log(user);
-    console.log(error);
     
     useEffect(() => {
         if(middleware === 'guest' && url && user){

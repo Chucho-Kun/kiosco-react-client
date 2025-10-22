@@ -1,3 +1,4 @@
+import type React from "react"
 import type { useKioscoType } from "../context/KioscoProvider"
 import { formato } from "../helpers"
 import { useKiosco } from "../hooks/useKiosco"
@@ -5,9 +6,14 @@ import ResumenProducto from "./ResumenProducto"
 
 export default function Resumen() {
 
-  const { pedidos , total } = useKiosco() as useKioscoType
+  const { pedidos , total, handleSubmitNuevaOrden } = useKiosco() as useKioscoType
 
   const comprobarPedidos = () => pedidos.length === 0;
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>  ) => {
+    e.preventDefault();
+    handleSubmitNuevaOrden();
+  }
 
   return (
     <aside className="w-72 h-screen overflow-y-scroll p-5">
@@ -33,7 +39,10 @@ export default function Resumen() {
         { formato( total ) }
       </p>
 
-      <form className="w-full" >
+      <form 
+        className="w-full" 
+        onSubmit={ handleSubmit }
+      >
         <div className="mt-5">
           <input 
             type="submit" 

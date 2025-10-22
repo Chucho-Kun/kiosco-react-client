@@ -26,6 +26,7 @@ export type useKioscoType = {
   handleEditarCantidad: ( id: number ) => void
   handleEliminarProductoPedido: ( id: number ) => void
   total: number
+  handleSubmitNuevaOrden: () => void
 };
 
 export const KioscoContext = createContext( {} as useKioscoType );
@@ -98,6 +99,33 @@ export const KioscoProvider = ({ children }: { children: ReactNode }) => {
       toast.success( 'Pedido Eliminado' )
     }
 
+    const handleSubmitNuevaOrden = async () => {
+      const token = localStorage.getItem('AUTH_TOKEN')
+      try {
+        const { data } = await clienteAxios.post('/api/pedidos', { 
+          total, 
+           productos: pedidos.map( producto => ({
+            id: producto.id,
+            cantidad: producto.cantidad
+           }))
+        },
+        {
+          headers:{
+            Authorization: `Bearer ${token}`
+          }
+        })
+
+        toast.success( data.message );
+        
+        setTimeout( () => {
+          setPedido([])
+        }, 1000);
+
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
       return(
         <KioscoContext.Provider
             value={{
@@ -112,7 +140,8 @@ export const KioscoProvider = ({ children }: { children: ReactNode }) => {
                 handleAgregarPedido,
                 handleEditarCantidad,
                 handleEliminarProductoPedido,
-                total
+                total,
+                handleSubmitNuevaOrden
             }}
         >
             { children }
