@@ -22,15 +22,16 @@ export default function Registro() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const data: FormDataType = {
+    const datos: FormDataType = {
       name: (nameRef.current as HTMLInputElement).value,
       email: (emailRef.current as HTMLInputElement).value,
       password: (passwordRef.current as HTMLInputElement).value,
       password_confirmation: (passwordConfirmationRef.current as HTMLInputElement).value
-    }
+    }   
 
     try {
-      await clienteAxios.post('/api/registro', data);
+      const { data } = await clienteAxios.post('/api/registro' , datos);
+      console.log(data.token);
     } catch (error: unknown) {
       if(typeof error === 'object' && error !== null && 'response' in error && typeof (error as any).response?.data?.errors === 'object'){
         setErrores( (error as any).response.data.errors )
@@ -49,6 +50,7 @@ export default function Registro() {
         <form
           onSubmit={handleSubmit}
           noValidate
+          method="POST"
         >
 
         { Object.entries(errores).map(([ campo , mensajes ]) => <Errores key={campo}>{ mensajes }</Errores> ) }
@@ -62,6 +64,7 @@ export default function Registro() {
                 name="name"
                 placeholder="Tu Nombre"
                 ref={nameRef}
+                value='chucho'
             />
           </div>
           <div className="mb-4">
@@ -73,6 +76,7 @@ export default function Registro() {
                 name="name"
                 placeholder="Tu email"
                 ref={emailRef}
+                value='chu@chu.com.mx'
             />
           </div>
           <div className="mb-4">
@@ -84,6 +88,7 @@ export default function Registro() {
                 name="password"
                 placeholder="Tu Password"
                 ref={passwordRef}
+                value='12341234'
             />
           </div>
           <div className="mb-4">
@@ -95,6 +100,7 @@ export default function Registro() {
                 name="password_confirmation"
                 placeholder="Repetir Password"
                 ref={passwordConfirmationRef}
+                value='12341234'
             />
           </div>
 
