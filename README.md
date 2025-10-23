@@ -4,8 +4,11 @@
 ### src/context/KioscoProvider.tsx
 ```
 import { createContext, useEffect, useState } from "react"
-import { categorias as categoriasDB, type CategoriasType } from "../data/categorias";
+import { type CategoriasType } from "../data/categorias";
 import type { ProductoType } from "../data/productos";
+import type { ReactNode } from "react";
+import { toast } from "react-toastify";
+import { clienteAxios } from "../config/axios";
 
 export type ProductoCantidadType = ProductoType & {
   cantidad: number
@@ -28,17 +31,16 @@ export type useKioscoType = {
   handleEditarCantidad: ( id: number ) => void
   handleEliminarProductoPedido: ( id: number ) => void
   total: number
+  handleSubmitNuevaOrden: () => void
+  handleClickCompletarPedido: ( id: number) => void
 };
 
 export const KioscoContext = createContext( {} as useKioscoType );
 
-import type { ReactNode } from "react";
-import { toast } from "react-toastify";
-
 export const KioscoProvider = ({ children }: { children: ReactNode }) => {
 
-    const [ categorias ] = useState( categoriasDB );
-    const [ categoriaActual , setCategoriaActual ] = useState( categorias[0] )
+    const [ categorias , setCategorias ] = useState( [] as CategoriasType[] );
+    const [ categoriaActual , setCategoriaActual ] = useState( {} as CategoriasType )
     const [ modal , setModal ] = useState( false )
     const [ producto, setProducto ] = useState<ProductoType | PedidoType>({} as ProductoType)
     const [ pedidos , setPedido] = useState([] as PedidoType[] )
@@ -48,6 +50,23 @@ export const KioscoProvider = ({ children }: { children: ReactNode }) => {
       const nuevoTotal = pedidos.reduce( ( total , producto ) => (producto.precio * producto.cantidad) + total, 0 )
       setTotal( nuevoTotal )
     },[pedidos])
+
+    const obtenerCategorias = async () => {
+      try {
+
+        const respuesta = await clienteAxios('/api/categorias'); //await axios(`${import.meta.env.VITE_API_URL}/api/categorias`);
+        const { data } = respuesta;
+        setCategorias( data.data );
+        setCategoriaActual( data.data[0] );
+      } catch (error) {
+        console.log(error);
+        
+      }
+    }
+
+    useEffect( () => {
+      obtenerCategorias();
+    },[])
     
     const handleClickCategoria = (id : number ) => {
       const categoria = categorias.filter( categoria => categoria.id === id )[0]
@@ -86,6 +105,47 @@ export const KioscoProvider = ({ children }: { children: ReactNode }) => {
       toast.success( 'Pedido Eliminado' )
     }
 
+    const handleSubmitNuevaOrden = async () => {
+      const token = localStorage.getItem('AUTH_TOKEN')
+      try {
+        const { data } = await clienteAxios.post('/api/pedidos', { 
+          total, 
+           productos: pedidos.map( producto => ({
+            id: producto.id,
+            cantidad: producto.cantidad
+           }))
+        },
+        {
+          headers:{
+            Authorization: `Bearer ${token}`
+          }
+        })
+
+        toast.success( data.message );
+        
+        setTimeout( () => {
+          setPedido([])
+        }, 1000);
+
+      } catch (error) {
+        console.log(error);
+       
+      }
+    }
+
+    const handleClickCompletarPedido = async ( id : number) => {
+      const token = localStorage.getItem('AUTH_TOKEN')
+       try {
+          await clienteAxios.put(`/api/pedidos/${id}`, null, {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          })
+        } catch (error) {
+          console.log(error);
+        }
+    }
+
       return(
         <KioscoContext.Provider
             value={{
@@ -100,7 +160,9 @@ export const KioscoProvider = ({ children }: { children: ReactNode }) => {
                 handleAgregarPedido,
                 handleEditarCantidad,
                 handleEliminarProductoPedido,
-                total
+                total,
+                handleSubmitNuevaOrden,
+                handleClickCompletarPedido
             }}
         >
             { children }
