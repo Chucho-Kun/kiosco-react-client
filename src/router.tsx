@@ -39,9 +39,14 @@ export const router = createBrowserRouter([
             {
                 index: true,
                 element: <Ordenes />
-            },{
+            },
+            {
                 path: '/admin/productos',
-                element: <Productos />
+                element: <Productos status='disponibles' />
+            },
+            {
+                path: '/admin/agotados',
+                element: <Productos status='agotados'/>
             }
         ]
     }

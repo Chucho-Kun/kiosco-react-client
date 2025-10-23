@@ -28,6 +28,7 @@ export type useKioscoType = {
   total: number
   handleSubmitNuevaOrden: () => void
   handleClickCompletarPedido: ( id: number) => void
+  handleClickProductoAgotado: ( id: number) => void
 };
 
 export const KioscoContext = createContext( {} as useKioscoType );
@@ -47,9 +48,13 @@ export const KioscoProvider = ({ children }: { children: ReactNode }) => {
     },[pedidos])
 
     const obtenerCategorias = async () => {
+      const token = localStorage.getItem('AUTH_TOKEN')
       try {
-
-        const respuesta = await clienteAxios('/api/categorias'); //await axios(`${import.meta.env.VITE_API_URL}/api/categorias`);
+        const respuesta = await clienteAxios('/api/categorias', { //await axios(`${import.meta.env.VITE_API_URL}/api/categorias`);
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }); 
         const { data } = respuesta;
         setCategorias( data.data );
         setCategoriaActual( data.data[0] );
@@ -128,7 +133,7 @@ export const KioscoProvider = ({ children }: { children: ReactNode }) => {
       }
     }
 
-    const handleClickCompletarPedido = async ( id : number) => {
+    const handleClickCompletarPedido = async ( id : number): Promise< string | null > => {
       const token = localStorage.getItem('AUTH_TOKEN')
        try {
           await clienteAxios.put(`/api/pedidos/${id}`, null, {
@@ -136,9 +141,36 @@ export const KioscoProvider = ({ children }: { children: ReactNode }) => {
               Authorization: `Bearer ${token}`
             }
           })
+
+          toast.success('Pedido cerrado correctamente');
+          return 'ok';
+        
         } catch (error) {
           console.log(error);
+          return null
         }
+    }
+
+    const handleClickProductoAgotado  = async ( id: number ): Promise< { nombreProducto: string } | null > => {
+      const token = localStorage.getItem('AUTH_TOKEN')
+      try {
+        const respuesta = await clienteAxios.put(`/api/productos/${id}`, null, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
+
+        const status = respuesta.data.producto.disponible
+        const nombreProducto = respuesta.data.producto.nombre
+        const texto = ( status ) ? `${nombreProducto} agregado nuevamente` : `${nombreProducto} retirado del menú`;
+
+        toast.success( texto );
+        return nombreProducto;
+        
+      } catch (error) {
+        console.log(error);
+        return null;
+      }
     }
 
       return(
@@ -157,7 +189,8 @@ export const KioscoProvider = ({ children }: { children: ReactNode }) => {
                 handleEliminarProductoPedido,
                 total,
                 handleSubmitNuevaOrden,
-                handleClickCompletarPedido
+                handleClickCompletarPedido,
+                handleClickProductoAgotado
             }}
         >
             { children }

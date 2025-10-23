@@ -47,14 +47,19 @@ export default function Ordenes() {
         }
     })
 
-    const { data , isLoading } = useSWR('/api/pedidos', fetcher, {
+    const { data , isLoading , mutate } = useSWR('/api/pedidos', fetcher, {
         refreshInterval: 5000
     })
 
     const { handleClickCompletarPedido } = useKiosco() as useKioscoType
+
+    const handleClick = async ( id : number ) => {
+        await handleClickCompletarPedido( id )
+        mutate();
+    }
     
     if(isLoading) return <Loader />
-    console.log(data?.data);
+
     const listaPedidos: ListaPedidosType[] = data?.data.data;
 
   return (
@@ -81,7 +86,7 @@ export default function Ordenes() {
                     <button
                         type="button"
                         className="bg-indigo-600 hover:bg-indigo-800 px-5 py-2 rounded uppercase font-bold text-white text-center w-full cursor-pointer"
-                        onClick={ () => handleClickCompletarPedido(pedido.id) }
+                        onClick={ () => handleClick(pedido.id) }
                     >
                         Completar
                     </button>
