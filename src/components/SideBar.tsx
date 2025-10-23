@@ -8,7 +8,7 @@ import Categoria from "./Categoria";
 export default function SideBar() {
 
   const { categorias } = useKiosco() as useKioscoType
-  const { logout , user } = useAuth({middleware: 'auth', url: '/api/login'})
+  const { logout , user } = useAuth({middleware: 'auth', url: '/auth/login'})
 
   return (
     <aside className="md:w-72">
