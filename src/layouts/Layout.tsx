@@ -7,7 +7,6 @@ import type { useKioscoType } from "../context/KioscoProvider";
 import ModalProducto from "../components/ModalProducto";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useAuth } from "../hooks/useAuth";
 
 const customStyles = {
   content: {
