@@ -24,7 +24,7 @@ Modal.setAppElement('#root');
 
 export default function Layout() {
 
-  useAuth({ middleware: 'auth', url: '/auth/login' })
+  //useAuth({ middleware: 'auth', url: '/auth/login' })
   const { modal } = useKiosco() as useKioscoType;
   
   return (
